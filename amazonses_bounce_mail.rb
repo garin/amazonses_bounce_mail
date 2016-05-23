@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 
-transport_file = "transport"
+transport_file = "/etc/postfix/transport"
 bounce_mails = []
 
 # exract json from raw mail
