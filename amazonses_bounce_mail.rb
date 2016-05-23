@@ -2,10 +2,23 @@
 require 'json'
 
 transport_file = "/etc/postfix/transport"
+subscription_arn_file = "/etc/postfix/amazonses_bounse_mail_subscription_arn"
+subscription_arn = File.open(subscription_arn_file).gets.chomp!
+mail_raw = STDIN.readlines(nil)[0]
 bounce_mails = []
 
+# get subscription-arn
+# SNS で設定している subscription_arn と メール の subscription_arn を使って認証する
+# 同じ arm であれば SNS からメールとして許可する
+mail_raw =~ /^x-amz-sns-subscription-arn:\s+(.*)\n/
+mail_subscription_arn = $1
+unless subscription_arn == mail_subscription_arn
+  puts "invalid arn"
+  exit 1
+end
+
 # exract json from raw mail
-STDIN.readlines(nil)[0] =~ /(\{.*\})/m
+mail_raw =~ /(\{.*\})/m
 params = JSON.parse($1)
 
 # get bounced mails
@@ -23,4 +36,4 @@ File.open(transport_file, "a") do |t|
 end
 
 # rehash transport db
-`postmap #{transport_file}`
+`/usr/sbin/postmap #{transport_file}`
