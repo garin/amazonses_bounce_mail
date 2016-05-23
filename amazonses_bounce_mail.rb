@@ -23,4 +23,4 @@ File.open(transport_file, "a") do |t|
 end
 
 # rehash transport db
-#`postmap #{transport_file}`
+`postmap #{transport_file}`
